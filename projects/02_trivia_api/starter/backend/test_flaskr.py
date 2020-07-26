@@ -14,8 +14,12 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_name = "trivia_test"
-        self.database_path = "postgres://{}/{}".format(
+        self.db_username = 'postgres'
+        self.db_password = 'postgres'
+        self.database_name = 'trivia_test'
+        self.database_path = 'postgres://{}:{}@{}/{}'.format(
+            self.db_username,
+            self.db_password,
             'localhost:5432',
             self.database_name
             )
@@ -40,5 +44,5 @@ class TriviaTestCase(unittest.TestCase):
 
 
 # Make the tests conveniently executable
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
