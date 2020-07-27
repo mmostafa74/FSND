@@ -88,6 +88,84 @@ GET '/categories'
 '6' : "Sports"}
 
 ```
+### Error Handling
+Errors are returned as JSON objects in the following format:
+```JSON
+{
+    "success": False, 
+    "error": 404,
+    "message": "resource not found"
+}
+```
+The API will return two error types when requests fail:
+- `400`: bad request!
+- `404`: not found!
+- `405`: not allowed!
+- `422`: unprocessable entity!
+- `500`: internal server error!
+
+### Endpoints 
+#### GET '/categories'
+- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- Request Arguments: None
+- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
+```JSON
+{
+    "Science": 1,
+    "Art": 2,
+    "Geography": 3,
+    "History": 4,
+    "Entertainment": 5,
+    "Sports": 6
+}
+```
+#### GET /questions
+- General:
+    - Returns a list of questions, success value, and total number of questions and the category that question belong
+    - Results are paginated in groups of 10.
+- Sample: `curl localhost:5000/questions`
+
+
+#### DELETE /questions/<question_id>
+- General:
+    - Deletes the question of the given ID if it exists. Returns the id of the deleted question, success value, total questions. 
+- `curl -X DELETE loaclhost:5000/questions/<int:question_id>`
+
+#### POST /questions
+- General:
+    - Creates a new Question
+    - using question,answer,category and difficulty.
+    - return true if created.
+    - it's looklike (question='new_question', answer='new_answer', category='new_category',difficulty='new_difficulty')
+
+
+#### POST /questions/search/
+- General:
+    - Search for the question.
+    - Request Body: search data.
+    - Returns: questions that belongs to the word you searched about.
+    - Returns: "There is no questions matched" if there is no question matched.
+
+#### POST /categories/<int:category_id>/questions
+- General:
+    - Get questions by category.
+    - Request : category id and page number.
+    - Returns: all questions,number of total questions,current category and other categories.
+
+#### POST /quizzs
+- General:
+    - get questions to play the quiz.
+    - Request: quiz category and previous questions.
+    - Returns:random questions example 
+    ```JSON
+    {
+        "previous_questions":[],
+        "quiz_category":{
+            "type":"Art",
+            "id":2
+            }
+    }
+    ```
 
 
 ## Testing
