@@ -88,7 +88,9 @@ The API will return two error types when requests fail:
 - `500`: internal server error!
 
 ### Endpoints 
-#### GET '/categories'
+
+#### Retrive categories 
+`/categories` **`GET`**
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
@@ -102,40 +104,54 @@ The API will return two error types when requests fail:
     "Sports": 6
 }
 ```
-#### GET /questions
+#### Retrieve Questions
+`/questions` **`GET`**
 - General:
     - Returns a list of questions, success value, and total number of questions and the category that question belong
     - Results are paginated in groups of 10.
 - Sample: `curl localhost:5000/questions`
 
 
-#### DELETE /questions/<question_id>
+#### Delete Question
+`/questions/<int:question_id>` **`DELETE`**
 - General:
     - Deletes the question of the given ID if it exists. Returns the id of the deleted question, success value, total questions. 
 - `curl -X DELETE loaclhost:5000/questions/<int:question_id>`
 
-#### POST /questions
+#### Add new question
+`/questions` **`POST`**
 - General:
     - Creates a new Question
     - using question,answer,category and difficulty.
     - return true if created.
-    - it's looklike (question='new_question', answer='new_answer', category='new_category',difficulty='new_difficulty')
+    - Sample
+        ```JSON
+        {
+            "question": 'new_question',
+            "answer":'new_answer',
+            "category": 'new_category',
+            "difficulty": 'new_difficulty'
+        }
+        ```
 
 
-#### POST /questions/search/
+#### Search for questions
+`/questions/search/` **`POST`**
 - General:
     - Search for the question.
     - Request Body: search data.
     - Returns: questions that belongs to the word you searched about.
     - Returns: "There is no questions matched" if there is no question matched.
 
-#### POST /categories/<int:category_id>/questions
+#### Retrive categorized questions
+`/categories/<int:category_id>/questions` **`GET`**
 - General:
     - Get questions by category.
     - Request : category id and page number.
     - Returns: all questions,number of total questions,current category and other categories.
 
-#### POST /quizzs
+#### Playing quiz
+`/quizzs`   **`POST`**
 - General:
     - get questions to play the quiz.
     - Request: quiz category and previous questions.
