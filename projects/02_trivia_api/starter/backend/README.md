@@ -75,7 +75,7 @@ This README is missing documentation of your endpoints. Below is an example for 
 Errors are returned as JSON objects in the following format:
 ```JSON
 {
-    "success": False, 
+    "success": false, 
     "error": 404,
     "message": "resource not found"
 }
