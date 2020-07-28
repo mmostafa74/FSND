@@ -92,7 +92,7 @@ def create_app(test_config=None):
                     'total_questions': len(questions)
                 })
         except Exception as ex:
-            print(ex)
+            print(1, ex)
             abort(422)
 
     @app.route('/questions', methods=['POST'])
@@ -137,7 +137,7 @@ def create_app(test_config=None):
         try:
             if search:
                 questions = Question.query.order_by(Question.id)\
-                    .filter(Question.title.ilike('%{}%'.format(search)))
+                    .filter(Question.query.ilike('%{}%'.format(search)))
                 current_questions = paginate_questions(request, questions)
 
                 return jsonify({
@@ -147,28 +147,34 @@ def create_app(test_config=None):
                 })
 
         except Exception as ex:
-            print(ex)
+            print(2, ex)
             abort(422)
 
     @app.route('/category/<int:category_id>/questions', methods=['GET'])
     def get_categorized_questions(category_id):
-        questions = Question.query.filter(Question.category == category_id)\
-            .all()
-        formatted_questions = [question.format() for question in questions]
-        categories = Category.query.all()
-        formatted_categories = [category.format() for category in categories]
-        category = Category.query.get(category_id)
+        try:
+            questions = Question.query\
+                .filter(Question.category == category_id).all()
+            formatted_questions = [question.format() for question in questions]
+            categories = Category.query.all()
+            formatted_categories = [
+                category.format() for category in categories
+                ]
+            category = Category.query.get(category_id)
 
-        if len(formatted_questions) == 0:
+            if len(formatted_questions) == 0:
+                abort(404)
+
+            return jsonify({
+                'success': True,
+                'questions': formatted_questions,
+                'categories': formatted_categories,
+                'current_category': Category.format(category),
+                'total_questions': len(formatted_questions)
+            })
+        except Exception as ex:
+            print(3, ex)
             abort(404)
-
-        return jsonify({
-            'success': True,
-            'questions': formatted_questions,
-            'categories': formatted_categories,
-            'current_category': Category.format(category),
-            'total_questions': len(formatted_questions)
-        })
 
     @app.route('/quizzes', methods=['POST'])
     def post_quiz():
@@ -178,9 +184,11 @@ def create_app(test_config=None):
         category = body.get('quiz_category', None)
 
         try:
-            if category is not None:
+            category_found = Category.query\
+                .filter(Category.id == category['id']).one_or_none()
+            if category is not None and category_found == 1:
                 questions = Question.query\
-                    .filter(Question.id == category.id)\
+                    .filter(Question.id == category['id'])\
                     .filter(Question.id.notin_(previous_questions)).all()
 
                 formatted_questions = [
@@ -196,9 +204,10 @@ def create_app(test_config=None):
                                 )
                             ]
                     })
-            abort(404)
+            else:
+                abort(404)
         except Exception as ex:
-            print(ex)
+            print(4, ex)
             abort(422)
 
     """
