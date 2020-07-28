@@ -1,4 +1,3 @@
-import json
 from flask import Flask, request, abort, jsonify
 from flask_cors import CORS
 import random
@@ -93,12 +92,12 @@ def create_app(test_config=None):
                     'total_questions': len(questions)
                 })
         except Exception as ex:
-            abort(422)
             print(ex)
+            abort(422)
 
     @app.route('/questions', methods=['POST'])
     def create_question():
-        body = request.get_json()
+        body = request.get_json(force=True)
 
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
@@ -126,12 +125,12 @@ def create_app(test_config=None):
             })
 
         except Exception as ex:
-            abort(422)
             print(ex)
+            abort(422)
 
     @app.route('/questions/search', methods=['POST'])
     def search_question():
-        body = request.get_json()
+        body = request.get_json(force=True)
 
         search = body.get('searchTerm', None)
 
@@ -148,8 +147,8 @@ def create_app(test_config=None):
                 })
 
         except Exception as ex:
-            abort(422)
             print(ex)
+            abort(422)
 
     @app.route('/category/<int:category_id>/questions', methods=['GET'])
     def get_categorized_questions(category_id):
@@ -173,31 +172,34 @@ def create_app(test_config=None):
 
     @app.route('/quizzes', methods=['POST'])
     def post_quiz():
-        if request.data:
-            search_data = json.loads(request.data)
-            if (('quiz_category' in search_data
-                    and 'id' in search_data['quiz_category'])
-                    and 'previous_questions' in search_data):
-                questions_query = Question.query.filter_by(
-                    category=search_data['quiz_category']['id']
-                ).filter(
-                    Question.id.notin_(search_data["previous_questions"])
-                ).all()
-                length_of_available_question = len(questions_query)
-                if length_of_available_question > 0:
+        body = request.get_json(force=True)
+
+        previous_questions = body.get('previous_questions', None)
+        category = body.get('quiz_category', None)
+
+        try:
+            if category is not None:
+                questions = Question.query\
+                    .filter(Question.id == category.id)\
+                    .filter(Question.id.notin_(previous_questions)).all()
+
+                formatted_questions = [
+                    question.format() for question in questions
+                    ]
+
+                if len(formatted_questions) != 0:
                     return jsonify({
                             'success': True,
-                            'question': Question.format(questions_query[
-                             random.randrange(0, length_of_available_question)
-                            ])
-                    })
-                else:
-                    return jsonify({
-                            'success': True,
-                            'question': None
+                            'question': formatted_questions[random.randint(
+                                0,
+                                len(formatted_questions)
+                                )
+                            ]
                     })
             abort(404)
-        abort(422)
+        except Exception as ex:
+            print(ex)
+            abort(422)
 
     """
         error hadlers section
