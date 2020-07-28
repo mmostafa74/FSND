@@ -38,6 +38,27 @@ class TriviaTestCase(unittest.TestCase):
             'difficulty': 3
         }
 
+        self.new_quiz = {
+            'previous_questions': [],
+            'quiz_category': {
+                'id': 2,
+                'type': 'Art'
+            }
+        }
+
+        self.null_category = {
+            'previous_questions': [],
+            'quiz_category': {}
+        }
+
+        self.not_found = {
+            'previous_questions': [],
+            'quiz_category': {
+                'Type': 'Pla',
+                'id': 1000
+            }
+        }
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -71,10 +92,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'not found!')
 
     def test_delete_existing_question(self):
-        res = self.client().delete('/questions/18')
+        res = self.client().delete('/questions/2')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], False)
 
     def test_delete_nonexitsting_question(self):
@@ -118,14 +139,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'not found!')
 
     def test_play_quiz(self):
-        post_data = {
-            'previous_questions': [],
-            'quiz_category': {
-                'type': 'Science',
-                'id': 1
-            }
-        }
-        res = self.client().post('/quizzes', json=post_data)
+        res = self.client().post('/quizzes', json=self.new_quiz)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -133,12 +147,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['question'])
 
     def test_play_quiz_unprocessable(self):
-        res = self.client().post('/quizzes')
+        res = self.client().post('/quizzes', json=self.null_category)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable entity!')
+
+    def test_quiz_not_found(self):
+        res = self.client().post('/quizzes', json=self.not_found)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'not found!')
+
 
 # Make the tests conveniently executable
 if __name__ == '__main__':
