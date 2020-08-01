@@ -93,7 +93,10 @@ class QuestionView extends Component {
       success: (result) => {
         this.setState({
           searchQuery: searchTerm,
-          page: page
+          page: page,
+          questions: result.questions,
+          totalQuestions: result.total_questions,
+          currentCategory: result.current_category
         });
         return;
       },
