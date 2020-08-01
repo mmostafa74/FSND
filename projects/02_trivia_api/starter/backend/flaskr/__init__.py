@@ -137,43 +137,40 @@ def create_app(test_config=None):
         try:
             if search is not None:
                 questions = Question.query.order_by(Question.id)\
-                    .filter(Question.question.ilike('%{}%'.format(search)))\
-                    .all()
+                    .filter(Question.question.ilike('%{}%'.format(search)))
                 current_questions = paginate_questions(request, questions)
 
-                if len(questions) != 0:
+                if len(questions.all()) != 0:
                     return jsonify({
                         'success': True,
                         'questions': current_questions,
-                        'total_questions': len(questions)
+                        'total_questions': len(questions.all())
                     })
-
+            abort(404)
         except Exception as ex:
             print(2, ex)
             abort(404)
 
-    @app.route('/category/<int:category_id>/questions', methods=['GET'])
+    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_categorized_questions(category_id):
         try:
             questions = Question.query\
                 .filter(Question.category == category_id).all()
-            formatted_questions = [question.format() for question in questions]
+            formatted_questions = paginate_questions(request, questions)
             categories = Category.query.all()
             formatted_categories = [
                 category.format() for category in categories
                 ]
             category = Category.query.get(category_id)
 
-            if len(formatted_questions) == 0:
-                abort(404)
-
-            return jsonify({
-                'success': True,
-                'questions': formatted_questions,
-                'categories': formatted_categories,
-                'current_category': Category.format(category),
-                'total_questions': len(formatted_questions)
-            })
+            if len(formatted_questions) != 0:
+                return jsonify({
+                    'success': True,
+                    'questions': formatted_questions,
+                    'categories': formatted_categories,
+                    'current_category': Category.format(category),
+                    'total_questions': len(formatted_questions)
+                })
         except Exception as ex:
             print(3, ex)
             abort(404)
