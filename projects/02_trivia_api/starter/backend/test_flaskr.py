@@ -41,8 +41,8 @@ class TriviaTestCase(unittest.TestCase):
         self.new_quiz = {
             'previous_questions': [],
             'quiz_category': {
-                'id': 2,
-                'type': 'Art'
+                'id': 5,
+                'type': 'Entertainment'
             }
         }
 
@@ -54,8 +54,8 @@ class TriviaTestCase(unittest.TestCase):
         self.not_found = {
             'previous_questions': [],
             'quiz_category': {
-                'Type': 'Pla',
-                'id': 1000
+                'id': 1000,
+                'type': 'Pla'
             }
         }
 
@@ -96,13 +96,13 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], False)
+        self.assertEqual(data['success'], True)
 
     def test_delete_nonexitsting_question(self):
         res = self.client().delete('/questions/10000')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
 
     def test_create_question(self):
@@ -150,9 +150,9 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/quizzes', json=self.null_category)
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'unprocessable entity!')
+        self.assertEqual(data['message'], 'not found!')
 
     def test_quiz_not_found(self):
         res = self.client().post('/quizzes', json=self.not_found)

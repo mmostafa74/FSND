@@ -68,9 +68,9 @@ def create_app(test_config=None):
         return jsonify({
             'success': True,
             'questions': current_questions,
+            'total_questions': len(questions),
             'categories': formatted_categories,
             'current_category': None,
-            'total_questions': len(questions)
         })
 
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
@@ -93,7 +93,7 @@ def create_app(test_config=None):
                 })
         except Exception as ex:
             print(1, ex)
-            abort(422)
+            abort(404)
 
     @app.route('/questions', methods=['POST'])
     def create_question():
@@ -184,12 +184,17 @@ def create_app(test_config=None):
         category = body.get('quiz_category', None)
 
         try:
-            category_found = Category.query\
-                .filter(Category.id == category['id']).one_or_none()
-            if category is not None and category_found == 1:
-                questions = Question.query\
-                    .filter(Question.id == category['id'])\
-                    .filter(Question.id.notin_(previous_questions)).all()
+            if category is not None:
+                category_found = Category.query\
+                    .filter(Category.id == category['id']).one_or_none()
+            if category_found is not None:
+                if previous_questions is not None:
+                    questions = Question.query\
+                        .filter(Question.category == category['id'])\
+                        .filter(Question.id.notin_(previous_questions)).all()
+                else:
+                    questions = Question.query\
+                        .filter(Question.category == category['id']).all()
 
                 formatted_questions = [
                     question.format() for question in questions
@@ -200,15 +205,19 @@ def create_app(test_config=None):
                             'success': True,
                             'question': formatted_questions[random.randint(
                                 0,
-                                len(formatted_questions)
+                                len(formatted_questions) - 1
                                 )
                             ]
                     })
-            else:
-                abort(404)
+                else:
+                    return jsonify({
+                        'success': True,
+                        'question': None
+                    })
+            abort(404)
         except Exception as ex:
             print(4, ex)
-            abort(422)
+            abort(404)
 
     """
         error hadlers section
