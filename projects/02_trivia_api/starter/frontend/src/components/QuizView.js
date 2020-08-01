@@ -12,7 +12,7 @@ class QuizView extends Component {
         quizCategory: null,
         previousQuestions: [], 
         showAnswer: false,
-        categories: {},
+        categories: [],
         numCorrect: 0,
         currentQuestion: {},
         guess: '',
@@ -112,7 +112,7 @@ class QuizView extends Component {
                       value={id}
                       className="play-category"
                       onClick={() => this.selectCategory({type:this.state.categories[id], id})}>
-                      {this.state.categories[id]}
+                      {/* {this.state.categories[id]} */}
                     </div>
                   )
                 })}
