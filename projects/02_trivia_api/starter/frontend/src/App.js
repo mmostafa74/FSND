@@ -5,7 +5,7 @@ import {
   Switch
 } from 'react-router-dom'
 
-// import logo from './logo.svg';
+import './logo.svg';
 import './stylesheets/App.css';
 import FormView from './components/FormView';
 import QuestionView from './components/QuestionView';
