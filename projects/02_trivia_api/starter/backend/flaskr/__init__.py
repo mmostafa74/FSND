@@ -135,20 +135,22 @@ def create_app(test_config=None):
         search = body.get('searchTerm', None)
 
         try:
-            if search:
+            if search is not None:
                 questions = Question.query.order_by(Question.id)\
-                    .filter(Question.query.ilike('%{}%'.format(search)))
+                    .filter(Question.question.ilike('%{}%'.format(search)))\
+                    .all()
                 current_questions = paginate_questions(request, questions)
 
-                return jsonify({
-                    'success': True,
-                    'questions': current_questions,
-                    'total_questions': len(questions.all())
-                })
+                if len(questions) != 0:
+                    return jsonify({
+                        'success': True,
+                        'questions': current_questions,
+                        'total_questions': len(questions)
+                    })
 
         except Exception as ex:
             print(2, ex)
-            abort(422)
+            abort(404)
 
     @app.route('/category/<int:category_id>/questions', methods=['GET'])
     def get_categorized_questions(category_id):
