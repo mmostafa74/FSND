@@ -1,4 +1,6 @@
 venv/
+env/
+node_modules/
 .vscode/
 __pycache__/
 test.db
